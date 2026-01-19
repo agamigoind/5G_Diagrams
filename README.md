@@ -3,8 +3,8 @@ sequenceDiagram
     autonumber
     participant UE as UE
     participant AMF as AMF (Serving Network)
-    participant AUSF as AUSF (Home Network)
-    participant SEAF as SEAF (in AMF)
+    %% participant AUSF as AUSF (Home Network)
+    %% participant SEAF as SEAF (in AMF)
 
     rect rgb(245,245,245)
     note over UE,AMF: Pre-condition: 5G-AKA or EAP-AKA' completed.<br/>Keys derived:<br/>K_AUSF → K_SEAF → K_AMF → (K_NAS-int, K_NAS-enc).<br/>UE and AMF hold NAS Security Context candidates identified by ngKSI.
