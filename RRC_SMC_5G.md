@@ -6,8 +6,8 @@ sequenceDiagram
     participant AMF as AMF (Serving Network)
 
     rect rgb(245,245,245)
-   note over UE,AMF: Pre-condition: 5G-AKA or EAP-AKA' completed.<br/>NAS security active; AMF holds K-AMF.<br/>AS key material available: KgNB or NH-NCC derived from K-AMF.<br/>UE Security Capabilities available for delivery to gNB.
-end
+   note over UE,AMF: Pre-condition: 5G-AKA or EAP-AKA prime completed.<br/>NAS security active at AMF.<br/>AS key material derived at AMF for gNB.
+    end
 
     UE-->>AMF: (Prior NAS signalling leading up to initial access / context setup)
     AMF->>AMF: Derive K_gNB or NH/NCC from K_AMF<br/>Select target AS key set<br/>Prepare UE Security Capabilities for NGAP signalling
