@@ -4,44 +4,42 @@ sequenceDiagram
     participant UE as UE
     participant gNB as gNB
     participant AMF as AMF (Serving Network)
-    %% participant AUSF as AUSF (Home Network)
-    %% participant SEAF as SEAF (in AMF)
 
     rect rgb(245,245,245)
-    note over UE,AMF: Pre-condition: 5G-AKA or EAP-AKA prime completed. AMF holds K_AMF and NAS security is active. AMF derives AS key input for gNB as K_gNB or NH/NCC and prepares UE Security Capabilities for delivery to gNB.
+    note over UE,AMF: Pre-condition: 5G-AKA or EAP-AKA' completed.<br/>NAS security active; AMF holds K_AMF.<br/>AS key material available: K_gNB or NH/NCC derived from K_AMF.<br/>UE Security Capabilities available for delivery to gNB.
     end
 
-    UE-->>AMF: Prior NAS signalling leading up to initial access or context setup
-    AMF->>AMF: Derive or access K_gNB (or NH/NCC) from K_AMF; prepare UE Security Capabilities
+    UE-->>AMF: (Prior NAS signalling leading up to initial access / context setup)
+    AMF->>AMF: Derive K_gNB or NH/NCC from K_AMF<br/>Select target AS key set<br/>Prepare UE Security Capabilities for NGAP signalling
 
     alt Initial access (Registration / Initial Request)
         rect rgb(230,250,255)
-        AMF-->>gNB: NGAP Initial Context Setup including K_gNB or NH/NCC plus UE Security Capabilities plus NAS context references
+        AMF-->>gNB: NGAP Initial Context Setup<br/>Includes K_gNB or NH/NCC<br/>Includes UE Security Capabilities<br/>Includes NAS context references
         end
     else UE context update
         rect rgb(230,250,255)
-        AMF-->>gNB: NGAP UE Context Modification Request including K_gNB or NH/NCC plus UE Security Capabilities
+        AMF-->>gNB: NGAP UE Context Modification Request<br/>Includes K_gNB or NH/NCC<br/>Includes UE Security Capabilities
         end
     else Handover
         rect rgb(230,250,255)
-        AMF-->>gNB: NGAP Handover Request including NH/NCC or target K_gNB plus UE Security Capabilities
+        AMF-->>gNB: NGAP Handover Request<br/>Includes NH/NCC or target K_gNB<br/>Includes UE Security Capabilities
         end
     end
 
-    gNB->>gNB: Store UE Security Capabilities and key input (K_gNB or NH/NCC)
+    gNB->>gNB: Store UE Security Capabilities<br/>Store AS key input (K_gNB or NH/NCC)
 
     rect rgb(245,255,245)
-    gNB-->>UE: RRC Security Mode Command (SMC) selects NEA and NIA supported by UE (AS algorithms only)
+    gNB-->>UE: RRC Security Mode Command (SMC)<br/>Select AS algorithms (NEA/NIA) supported by UE<br/>No NAS key set change
     end
 
-    UE->>UE: Initialize UL and DL AS security with selected NEA and NIA using the current AS key hierarchy
+    UE->>UE: Verify RRC SMC<br/>Activate selected NEA/NIA locally<br/>Initialize UL and DL AS security
+
     rect rgb(230,255,230)
-    UE-->>gNB: RRC Security Mode Complete (AS security confirmation)
+    UE-->>gNB: RRC Security Mode Complete<br/>Integrity protected and ciphered according to selected NIA/NEA
     end
 
-    gNB->>gNB: Enable and confirm DL AS security with selected NEA and NIA
+    gNB->>gNB: Confirm UL activation<br/>Enable DL AS security with selected NEA/NIA
 
     rect rgb(245,245,245)
-    note over UE,gNB: Result: AS security active for UL and DL. RRC SMC selects and activates AS algorithms. NAS SMC governs NAS security activation and NAS key set changes.
+    note over UE,gNB: Result: AS security active for UL and DL.<br/>RRC SMC selects and activates AS algorithms.<br/>NAS SMC governs NAS security activation and NAS key set changes.
     end
-
