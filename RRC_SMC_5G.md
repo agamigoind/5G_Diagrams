@@ -4,8 +4,7 @@ sequenceDiagram
     autonumber
     participant UE as UE
     participant gNB as gNB
-    participant AMF as AMF (Serving Network)
-
+    participant AMF as AMF
     %% ------------------------------------------------------------------
     %% Preconditions and keying context
     %% ------------------------------------------------------------------
