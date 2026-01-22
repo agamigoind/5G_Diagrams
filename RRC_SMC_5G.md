@@ -4,8 +4,6 @@ sequenceDiagram
     participant UE as UE
     participant gNB as gNB
     participant AMF as AMF (Serving Network)
-    %% participant AUSF as AUSF (Home Network)
-    %% participant SEAF as SEAF (in AMF)
 
     rect rgb(245,245,245)
     note over UE,AMF: Pre-condition: 5G-AKA or EAP-AKA' completed.<br/>AMF holds K_AMF; NAS security is active.<br/>AS key seed for gNB will be K_gNB or NH/NCC as applicable.
