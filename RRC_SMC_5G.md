@@ -42,3 +42,4 @@ sequenceDiagram
     rect rgb(245,245,245)
     note over UE,gNB: Result: AS security active for UL and DL.<br/>RRC SMC selects and activates AS algorithms.<br/>NAS SMC governs NAS security activation and NAS key set changes.
     end
+end
