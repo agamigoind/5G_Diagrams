@@ -30,3 +30,4 @@ sequenceDiagram
         UE-->>AMF: NAS Security Mode Reject<br/>Integrity protected if possible, cause value
         end
         AMF->>AMF: Handle failure (e.g. reattempt, release)
+ end
