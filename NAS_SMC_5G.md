@@ -2,43 +2,32 @@
 sequenceDiagram
     autonumber
     participant UE as UE
-    participant gNB as gNB
     participant AMF as AMF (Serving Network)
+    %% participant AUSF as AUSF (Home Network)
+    %% participant SEAF as SEAF (in AMF)
 
-    %% ------------------------------------------------------------------
-    %% Preconditions and keying context
-    %% ------------------------------------------------------------------
     rect rgb(245,245,245)
-    note over UE,AMF: Pre-condition: 5G-AKA/EAP-AKA' completed; NAS security active.&lt;br/&gt;AMF holds K_AMF; AS key seed for gNB will be K_gNB or NH/NCC as applicable.
+    note over UE,AMF: Pre-condition: 5G-AKA or EAP-AKA' completed.&lt;br/&gt;Keys derived:&lt;br/&gt;K_AUSF → K_SEAF → K_AMF → (K_NAS-int, K_NAS-enc).&lt;br/&gt;UE and AMF hold NAS Security Context candidates identified by ngKSI.
     end
 
-    %% AMF derives/accesses keying material and delivers via NGAP
-    AMF-&gt;&gt;AMF: Derive/access K_gNB (or NH/NCC) from K_AMF
+    UE--&gt;&gt;AMF: (Prior NAS signalling leading up to SMC)
+    AMF-&gt;&gt;AMF: Select NAS Security Context (ngKSI)&lt;br/&gt;Select NAS algorithms (NIA/NEA)&lt;br/&gt;Prepare UE Security Capabilities echo + ABBA
 
-    alt Initial access (Registration / Initial Request)
-        rect rgb(230,250,255)
-        AMF--&gt;&gt;gNB: NGAP Initial Context Setup&lt;br/&gt;Includes K_gNB or NH/NCC + UE Security Capabilities + NAS context refs
-        end
-    else UE context update
-        rect rgb(230,250,255)
-        AMF--&gt;&gt;gNB: NGAP UE Context Modification Request&lt;br/&gt;Includes K_gNB or NH/NCC + UE Security Capabilities
-        end
-    else Handover
-        rect rgb(230,250,255)
-        AMF--&gt;&gt;gNB: NGAP Handover Request&lt;br/&gt;Includes NH/NCC or target K_gNB + UE Security Capabilities
-        end
+    rect rgb(230,250,255)
+    AMF-&gt;&gt;UE: NAS Security Mode Command (SMC)&lt;br/&gt;Integrity protected using K_NAS-int, typically not ciphered&lt;br/&gt;Includes ngKSI, selected NIA/NEA, UE security capabilities (replayed), ABBA, optional IMEISV req
     end
 
-    note right of gNB: gNB stores UE Security Capabilities and key input (K_gNB/NH/NCC)
+    UE-&gt;&gt;UE: Verify NAS MAC (integrity check)&lt;br/&gt;Validate replayed UE security capabilities + ABBA (anti-bidding-down)&lt;br/&gt;Activate selected NIA/NEA locally
 
-    %% ------------------------------------------------------------------
-    %% RRC SMC: algorithm selection only (no key set change)
-    %% ------------------------------------------------------------------
-    rect rgb(245,255,245)
-    gNB--&gt;&gt;UE: RRC Security Mode Command (SMC)&lt;br/&gt;Select NEA/NIA supported by UE; no key set change (RRC cannot change keys)
+    alt UE accepts SMC
+        rect rgb(230,255,230)
+        UE-&gt;&gt;AMF: NAS Security Mode Complete&lt;br/&gt;Integrity protected, ciphered if NEA is activated&lt;br/&gt;Includes UE response (e.g. IMEISV if requested), optional PDU session status
+        end
+        AMF-&gt;&gt;AMF: Confirm UL activation, start DL NAS security with selected NIA/NEA
+        AMF--&gt;&gt;UE: Subsequent NAS messages (e.g. Registration Accept)&lt;br/&gt;Integrity protected, ciphered if enabled
+    else UE rejects SMC
+        rect rgb(255,235,235)
+        UE--&gt;&gt;AMF: NAS Security Mode Reject&lt;br/&gt;Integrity protected if possible, cause value
+        end
+        AMF-&gt;&gt;AMF: Handle failure (e.g. reattempt, release)
     end
-
-    UE-&gt;&gt;UE: Initialize UL/DL security with selected NEA/NIA&lt;br/&gt;Using current AS key hierarchy
-
-    rect rgb(230,255,230)
-
