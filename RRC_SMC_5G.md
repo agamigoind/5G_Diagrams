@@ -1,50 +1,30 @@
 ```mermaid
 sequenceDiagram
     autonumber
-    participant UE as UE
-    participant gNB as gNB
-    participant AMF as AMF (Serving Network)
-    %% participant AUSF as AUSF (Home Network)
-    %% participant SEAF as SEAF (in AMF)
+    participant UE
+    participant gNB
+    participant AMF
 
-    rect rgb(245,245,245)
-        note over UE,AMF
-            Pre-condition: 5G-AKA or EAP-AKA' completed.
-            AMF holds K_AMF; NAS security is active.
-            AS key seed for gNB will be K_gNB or NH/NCC as applicable.
-        end
-    end
+    note over UE,AMF: Pre-condition: 5G-AKA or EAP-AKA prime completed; AMF holds K_AMF; NAS security active; AS key seed is K_gNB or NH/NCC
 
-    UE-->>AMF: Prior NAS signalling leading up to initial access / context setup
-    AMF->>AMF: Derive or access K_gNB (or NH/NCC) from K_AMF; prepare UE Security Capabilities
+    UE-->>AMF: Prior NAS signalling before initial access
+    AMF->>AMF: Derive K_gNB or NH/NCC from K_AMF and prepare UE Security Capabilities
 
     rect rgb(230,250,255)
-        alt Initial access (Registration / Initial Request)
-            AMF-->>gNB: NGAP Initial Context Setup (K_gNB or NH/NCC + UE Security Capabilities + NAS refs)
+        alt Initial access
+            AMF-->>gNB: NGAP Initial Context Setup (K_gNB or NH/NCC, UE Security Capabilities)
         else UE context update
-            AMF-->>gNB: NGAP UE Context Modification Request (K_gNB or NH/NCC + UE Security Capabilities)
+            AMF-->>gNB: NGAP UE Context Modification Request
         else Handover
-            AMF-->>gNB: NGAP Handover Request (NH/NCC or target K_gNB + UE Security Capabilities)
+            AMF-->>gNB: NGAP Handover Request (NH/NCC or target K_gNB)
         end
     end
 
-    gNB->>gNB: Store UE Security Capabilities and key input (K_gNB / NH / NCC)
+    gNB->>gNB: Store UE Security Capabilities and AS key input
 
-    rect rgb(245,255,245)
-        gNB-->>UE: RRC Security Mode Command (select NEA/NIA; algorithms only)
-    end
+    gNB-->>UE: RRC Security Mode Command (select NEA/NIA only)
+    UE->>UE: Initialize UL and DL AS security
+    UE-->>gNB: RRC Security Mode Complete
+    gNB->>gNB: Enable DL security
 
-    UE->>UE: Initialize UL/DL security with selected NEA/NIA
-
-    rect rgb(230,255,230)
-        UE-->>gNB: RRC Security Mode Complete (ciphered and integrity protected)
-    end
-
-    gNB->>gNB: Enable and confirm DL security with selected NEA/NIA
-
-    note over UE,gNB
-        Result:
-        AS security active for UL and DL.
-        RRC SMC selects algorithms only.
-        NAS SMC governs key set changes.
-    end
+    note over UE,gNB: Result: AS security active for UL and DL; RRC SMC selects algorithms only; NAS SMC handles key changes
